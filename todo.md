@@ -1,0 +1,47 @@
+# Projeto TODO
+
+- [x] Definir regras de acesso para administrador e responsáveis de segmento.
+- [x] Modelar segmentos, professores, vínculos de ensino e carga horária semanal por dia e turno.
+- [x] Modelar registros de faltas com cálculo automático de horas-aula não ministradas.
+- [x] Modelar registros de tarefas docentes para notas, material, reunião, capacitação e eventos.
+- [x] Implementar autenticação e isolamento de dados por segmento no servidor.
+- [x] Criar interface de administração de usuários, segmentos e configurações gerais.
+- [x] Criar cadastro administrativo de professores, disciplinas, séries, turmas e horários semanais.
+- [x] Criar formulários de lançamento de faltas e tarefas para responsáveis de segmento.
+- [x] Criar dashboard com filtros de professor e mês, cartões de indicadores e dados docentes.
+- [x] Criar ranking dos seis professores com mais faltas no período filtrado.
+- [x] Criar gráficos de Sim versus Não para notas, material, reunião, capacitação e eventos.
+- [x] Aplicar uma identidade visual elegante, responsiva e acessível em toda a aplicação.
+- [x] Escrever testes automatizados para permissões e cálculos de indicadores.
+- [x] Validar fluxos principais, revisar a interface e preparar a primeira entrega.
+- [x] Aplicar a paleta #00375d, #00b1e7, #afca0a e #e8425c à identidade visual do sistema.
+- [x] Revisar contraste, estados semânticos e responsividade após a atualização de cores.
+- [x] Adicionar filtro de segmento à visão geral, preservando o isolamento de dados dos responsáveis.
+- [x] Validar o filtro de segmento para administrador e responsáveis antes da entrega.
+- [x] Adicionar comparação dos indicadores do mês selecionado com o mês anterior.
+- [x] Exibir a lista detalhada de professores pendentes ao clicar em um gráfico de pizza.
+- [x] Testar os cálculos comparativos, os critérios de pendência e a interação do dashboard.
+- [x] Adicionar checkbox Demitido ao cadastro e à edição de professores.
+- [x] Excluir professores demitidos de filtros, lançamentos, cálculos, rankings e pendências do dashboard.
+- [x] Testar o status Demitido e validar a interface administrativa atualizada.
+- [x] Preparar instruções e arquivos de configuração para executar o projeto localmente.
+- [x] Resolver a instalação local do pnpm sem permissões de administrador no Windows.
+- [x] Adicionar modelo de variáveis locais e suporte a certificado TLS para conexão segura com TiDB Cloud.
+- [x] Adicionar modo de autenticação local exclusivo para desenvolvimento e documentar seu uso seguro.
+- [x] Orientar a criação e a conexão segura de um banco TiDB Cloud.
+- [x] Adicionar um comando de migração local que respeite o certificado TLS do TiDB Cloud.
+- [ ] Validar a aplicação em ambiente local com banco externo.
+- [ ] Criar documentação de portfólio e publicar o código em um repositório GitHub escolhido pelo usuário.
+- [x] Avaliar a migração de Drizzle para Prisma e decidir a estratégia de persistência para o ambiente local e o portfólio.
+- [x] Modelar o banco em Prisma e substituir o cliente Drizzle.
+- [x] Migrar as consultas, cálculos e controles de acesso para Prisma.
+- [x] Substituir o fluxo de migrações pelo Prisma e documentar Prisma Studio para aprendizado.
+- [x] Testar a compilação, as consultas e as telas após a migração para Prisma com a conexão externa disponível.
+- [x] Remover os artefatos, scripts e dependências remanescentes do Drizzle.
+- [x] Corrigir a geração do Prisma Client no Windows e eliminar os erros de tipos associados.
+- [x] Orientar a substituição da cópia local desatualizada pela versão que contém a pasta prisma.
+- [x] Confirmar a ausência da pasta prisma no download oficial e entregar um pacote fonte alternativo verificado.
+- [x] Entregar um arquivo ZIP fonte verificado que contenha a pasta prisma e o schema.prisma.
+- [ ] Corrigir o comando pnpm dev para compatibilidade com Windows e validar a inicialização local.
+- [x] Desativar OAuth e analytics não configurados durante a execução local.
+- [x] Corrigir a criação idempotente de segmentos no TiDB com Prisma.

@@ -1,0 +1,141 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  user
+  admin
+  responsavel
+}
+
+enum Weekday {
+  segunda
+  terca
+  quarta
+  quinta
+  sexta
+  sabado
+  domingo
+}
+
+enum Shift {
+  manha
+  tarde
+  noite
+}
+
+enum TaskCategory {
+  notas
+  material
+  reuniao
+  capacitacao
+  evento
+}
+
+model User {
+  id             Int             @id @default(autoincrement())
+  openId         String          @unique @db.VarChar(64)
+  name           String?         @db.Text
+  email          String?         @db.VarChar(320)
+  loginMethod    String?         @db.VarChar(64)
+  role           UserRole        @default(user)
+  segmentId      Int?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+  lastSignedIn   DateTime        @default(now())
+  segment        Segment?        @relation("UserSegment", fields: [segmentId], references: [id])
+  createdAbsences AbsenceRecord[] @relation("AbsenceCreatedBy")
+  createdTasks   TaskRecord[]    @relation("TaskCreatedBy")
+
+  @@index([segmentId])
+  @@map("users")
+}
+
+model Segment {
+  id        Int       @id @default(autoincrement())
+  name      String    @unique @db.VarChar(80)
+  createdAt DateTime  @default(now())
+  teachers  Teacher[]
+  users     User[]    @relation("UserSegment")
+
+  @@map("segments")
+}
+
+model Teacher {
+  id          Int                 @id @default(autoincrement())
+  name        String              @db.VarChar(160)
+  discipline  String              @db.VarChar(120)
+  segmentId   Int
+  active      Boolean             @default(true)
+  createdAt   DateTime            @default(now())
+  updatedAt   DateTime            @updatedAt
+  segment     Segment             @relation(fields: [segmentId], references: [id])
+  assignments TeacherAssignment[]
+  schedules   TeacherSchedule[]
+  absences    AbsenceRecord[]
+  tasks       TaskRecord[]
+
+  @@index([segmentId])
+  @@map("teachers")
+}
+
+model TeacherAssignment {
+  id         Int     @id @default(autoincrement())
+  teacherId  Int
+  grade      String  @db.VarChar(60)
+  classGroup String  @db.VarChar(60)
+  teacher    Teacher @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@index([teacherId])
+  @@map("teacherAssignments")
+}
+
+model TeacherSchedule {
+  id         Int      @id @default(autoincrement())
+  teacherId  Int
+  weekday    Weekday
+  shift      Shift
+  classHours Decimal  @db.Decimal(5, 2)
+  teacher    Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+
+  @@unique([teacherId, weekday, shift], map: "teacher_schedule_unique")
+  @@map("teacherSchedules")
+}
+
+model AbsenceRecord {
+  id              Int      @id @default(autoincrement())
+  teacherId       Int
+  absenceDate     DateTime @db.Date
+  shift           Shift
+  uncoveredHours  Decimal  @db.Decimal(5, 2)
+  createdByUserId Int
+  createdAt       DateTime @default(now())
+  teacher         Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  createdBy       User     @relation("AbsenceCreatedBy", fields: [createdByUserId], references: [id])
+
+  @@unique([teacherId, absenceDate, shift], map: "absence_teacher_date_shift_unique")
+  @@index([absenceDate], map: "absence_date_idx")
+  @@map("absenceRecords")
+}
+
+model TaskRecord {
+  id              Int          @id @default(autoincrement())
+  teacherId       Int
+  taskDate        DateTime     @db.Date
+  category        TaskCategory
+  completed       Boolean
+  createdByUserId Int
+  createdAt       DateTime     @default(now())
+  updatedAt       DateTime     @updatedAt
+  teacher         Teacher      @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  createdBy       User         @relation("TaskCreatedBy", fields: [createdByUserId], references: [id])
+
+  @@unique([teacherId, taskDate, category], map: "task_teacher_date_category_unique")
+  @@index([taskDate], map: "task_date_idx")
+  @@map("taskRecords")
+}
