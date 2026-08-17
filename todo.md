@@ -30,8 +30,11 @@
 - [x] Adicionar modo de autenticação local exclusivo para desenvolvimento e documentar seu uso seguro.
 - [x] Orientar a criação e a conexão segura de um banco TiDB Cloud.
 - [x] Adicionar um comando de migração local que respeite o certificado TLS do TiDB Cloud.
-- [ ] Validar a aplicação em ambiente local com banco externo.
-- [ ] Criar documentação de portfólio e publicar o código em um repositório GitHub escolhido pelo usuário.
+- [x] Validar a aplicação em ambiente local com banco externo.
+- [x] Criar documentação de portfólio e publicar o código em um repositório GitHub escolhido pelo usuário.
+- [x] Criar README de portfólio com visão do produto, tecnologias, arquitetura e instruções de execução local.
+- [x] Revisar o repositório local antes do primeiro commit e orientar a publicação segura no GitHub.
+- [x] Integrar o commit inicial criado no GitHub sem perder o histórico local.
 - [x] Avaliar a migração de Drizzle para Prisma e decidir a estratégia de persistência para o ambiente local e o portfólio.
 - [x] Modelar o banco em Prisma e substituir o cliente Drizzle.
 - [x] Migrar as consultas, cálculos e controles de acesso para Prisma.
@@ -42,6 +45,20 @@
 - [x] Orientar a substituição da cópia local desatualizada pela versão que contém a pasta prisma.
 - [x] Confirmar a ausência da pasta prisma no download oficial e entregar um pacote fonte alternativo verificado.
 - [x] Entregar um arquivo ZIP fonte verificado que contenha a pasta prisma e o schema.prisma.
-- [ ] Corrigir o comando pnpm dev para compatibilidade com Windows e validar a inicialização local.
+- [x] Corrigir o comando pnpm dev para compatibilidade com Windows e validar a inicialização local.
 - [x] Desativar OAuth e analytics não configurados durante a execução local.
 - [x] Corrigir a criação idempotente de segmentos no TiDB com Prisma.
+- [x] Modelar feriados e eventos escolares com permissões administrativas.
+- [x] Criar calendário mensal interativo com navegação e visualização dos eventos.
+- [x] Permitir que administradores cadastrem, editem e removam feriados e eventos.
+- [x] Testar as regras de calendário e validar a experiência em desktop e mobile.
+- [x] Exibir erro explícito quando a consulta de itens ou segmentos do calendário falhar.
+- [x] Cobrir as regras de escopo e permissão administrativa do calendário com testes automatizados.
+- [x] Permitir a seleção de visão anual no período de referência do dashboard.
+- [x] Calcular e apresentar indicadores, ranking e pendências para o ano selecionado.
+- [x] Validar a visão anual no dashboard em desktop e mobile.
+- [x] Validar a consulta anual, os indicadores e as pendências do dashboard por teste automatizado.
+- [x] Confirmar visualmente o modo anual do dashboard em desktop e mobile.
+- [x] Corrigir o tratamento de período inválido no carregamento do dashboard.
+- [x] Testar o dashboard com parâmetros de URL e valores de período inválidos.
+- [x] Confirmar fallback seguro do dashboard quando o parâmetro period da URL for inválido.

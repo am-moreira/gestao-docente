@@ -1,7 +1,7 @@
 import type { TaskCategory } from "@prisma/client";
 import { z } from "zod";
 import { getDb, getTeacherWithDetails, listTeachersWithDetails } from "../db";
-import { calculateAbsencePercentage, calculateMetricDeltas, calculateTaskStats, calculateTopAbsenceRanking, groupPendingTeachers, scheduleHoursForMonth, taskCategories } from "../dashboardMetrics";
+import { calculateAbsencePercentage, calculateMetricDeltas, calculateTaskStats, calculateTopAbsenceRanking, groupPendingTeachers, scheduleHoursForMonth, scheduleHoursForYear, taskCategories } from "../dashboardMetrics";
 import { assertSegmentAccess, resolveSegmentScope } from "../permissions";
 import { protectedProcedure, router } from "../_core/trpc";
 
@@ -12,11 +12,24 @@ function monthRange(month: string) {
   return { start: new Date(Date.UTC(year, monthIndex, 1)), end: new Date(Date.UTC(year, monthIndex, lastDay, 23, 59, 59)), year, monthIndex, lastDay };
 }
 function previousMonth(month: string) { const [year, monthNumber] = month.split("-").map(Number); const previous = new Date(year, monthNumber - 2, 1); return `${previous.getFullYear()}-${String(previous.getMonth() + 1).padStart(2, "0")}`; }
+type PeriodView = "month" | "year";
+type DashboardPeriod = ReturnType<typeof monthRange> & { view: PeriodView };
+function periodRange(month: string, view: PeriodView): DashboardPeriod {
+  if (view === "month") return { ...monthRange(month), view };
+  const year = Number(month.slice(0, 4));
+  return { start: new Date(Date.UTC(year, 0, 1)), end: new Date(Date.UTC(year, 11, 31, 23, 59, 59)), year, monthIndex: 0, lastDay: 31, view };
+}
+function previousPeriodRange(month: string, view: PeriodView) {
+  return view === "year" ? periodRange(`${Number(month.slice(0, 4)) - 1}-01`, "year") : periodRange(previousMonth(month), "month");
+}
+function scheduleHoursForPeriod(schedules: { weekday: string; classHours: string }[], period: DashboardPeriod) {
+  return period.view === "year" ? scheduleHoursForYear(schedules, period.year) : scheduleHoursForMonth(schedules, period.year, period.monthIndex, period.lastDay);
+}
 function emptyTaskStats() { return Object.fromEntries(taskCategories.map(category => [category, { yes: 0, no: 0 }])) as Record<(typeof taskCategories)[number], { yes: number; no: number }>; }
 function emptySummary() { return { metrics: { totalClasses: 0, uncoveredClasses: 0, uncoveredPercentage: 0, absences: 0 }, comparison: { totalClasses: 0, uncoveredClasses: 0, uncoveredPercentage: 0, absences: 0 }, teacher: null, ranking: [], taskStats: emptyTaskStats() }; }
 
 export const dashboardRouter = router({
-  summary: protectedProcedure.input(z.object({ month: z.string().regex(/^\d{4}-\d{2}$/), teacherId: z.number().int().positive().optional(), segmentId: z.number().int().positive().optional() })).query(async ({ ctx, input }) => {
+  summary: protectedProcedure.input(z.object({ month: z.string().regex(/^\d{4}-\d{2}$/), period: z.enum(["month", "year"]).default("month"), teacherId: z.number().int().positive().optional(), segmentId: z.number().int().positive().optional() })).query(async ({ ctx, input }) => {
     const db = await getDb();
     if (!db) return emptySummary();
     const activeSegmentId = resolveSegmentScope(ctx.user, input.segmentId);
@@ -32,8 +45,8 @@ export const dashboardRouter = router({
       selectedIds = [input.teacherId];
     }
     if (!selectedIds.length) return { ...emptySummary(), teacher: selectedTeacher };
-    const range = monthRange(input.month);
-    const previousRange = monthRange(previousMonth(input.month));
+    const range = periodRange(input.month, input.period);
+    const previousRange = previousPeriodRange(input.month, input.period);
     const [schedules, absences, previousAbsences, tasks, allAbsences] = await Promise.all([
       db.teacherSchedule.findMany({ where: { teacherId: { in: selectedIds } }, select: { teacherId: true, weekday: true, classHours: true } }),
       db.absenceRecord.findMany({ where: { teacherId: { in: selectedIds }, absenceDate: { gte: range.start, lte: range.end } }, select: { teacherId: true, uncoveredHours: true } }),
@@ -44,16 +57,16 @@ export const dashboardRouter = router({
     const scheduleRows = schedules.map(schedule => ({ ...schedule, classHours: schedule.classHours.toString() }));
     const taskStats = calculateTaskStats(tasks);
     const ranking = calculateTopAbsenceRanking(visibleTeachers, allAbsences);
-    const totalClasses = scheduleHoursForMonth(scheduleRows, range.year, range.monthIndex, range.lastDay);
+    const totalClasses = scheduleHoursForPeriod(scheduleRows, range);
     const uncoveredClasses = absences.reduce((total, item) => total + Number(item.uncoveredHours), 0);
     const metrics = { totalClasses, uncoveredClasses, uncoveredPercentage: calculateAbsencePercentage(totalClasses, uncoveredClasses), absences: absences.length };
-    const previousTotalClasses = scheduleHoursForMonth(scheduleRows, previousRange.year, previousRange.monthIndex, previousRange.lastDay);
+    const previousTotalClasses = scheduleHoursForPeriod(scheduleRows, previousRange);
     const previousUncoveredClasses = previousAbsences.reduce((total, item) => total + Number(item.uncoveredHours), 0);
     const previousMetrics = { totalClasses: previousTotalClasses, uncoveredClasses: previousUncoveredClasses, uncoveredPercentage: calculateAbsencePercentage(previousTotalClasses, previousUncoveredClasses), absences: previousAbsences.length };
     return { metrics, comparison: calculateMetricDeltas(metrics, previousMetrics), teacher: selectedTeacher, ranking, taskStats };
   }),
 
-  taskPendencies: protectedProcedure.input(z.object({ month: z.string().regex(/^\d{4}-\d{2}$/), category: z.enum(taskCategories), teacherId: z.number().int().positive().optional(), segmentId: z.number().int().positive().optional() })).query(async ({ ctx, input }) => {
+  taskPendencies: protectedProcedure.input(z.object({ month: z.string().regex(/^\d{4}-\d{2}$/), period: z.enum(["month", "year"]).default("month"), category: z.enum(taskCategories), teacherId: z.number().int().positive().optional(), segmentId: z.number().int().positive().optional() })).query(async ({ ctx, input }) => {
     const db = await getDb();
     if (!db) return [];
     const activeSegmentId = resolveSegmentScope(ctx.user, input.segmentId);
@@ -67,7 +80,7 @@ export const dashboardRouter = router({
     }
     const selectedIds = input.teacherId ? [input.teacherId] : visibleIds;
     if (!selectedIds.length) return [];
-    const range = monthRange(input.month);
+    const range = periodRange(input.month, input.period);
     const rows = await db.taskRecord.findMany({
       where: { teacherId: { in: selectedIds }, category: input.category as TaskCategory, completed: false, taskDate: { gte: range.start, lte: range.end } },
       include: { teacher: true }, orderBy: { taskDate: "desc" },

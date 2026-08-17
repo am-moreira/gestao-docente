@@ -12,6 +12,13 @@ export function scheduleHoursForMonth(schedules: { weekday: string; classHours: 
   }, 0);
 }
 
+export function scheduleHoursForYear(schedules: { weekday: string; classHours: string }[], year: number) {
+  return Array.from({ length: 12 }, (_, monthIndex) => {
+    const lastDay = new Date(year, monthIndex + 1, 0).getDate();
+    return scheduleHoursForMonth(schedules, year, monthIndex, lastDay);
+  }).reduce((total, value) => total + value, 0);
+}
+
 export function calculateAbsencePercentage(totalClasses: number, uncoveredClasses: number) {
   return totalClasses ? (uncoveredClasses / totalClasses) * 100 : 0;
 }

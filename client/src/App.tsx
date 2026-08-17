@@ -10,6 +10,7 @@ import AbsencePage from "./pages/AbsencePage";
 import TasksPage from "./pages/TasksPage";
 import TeacherManagement from "./pages/TeacherManagement";
 import AccessPage from "./pages/AccessPage";
+import CalendarPage from "./pages/CalendarPage";
 
 function Router() {
   // make sure to consider if you need authentication for certain routes
@@ -18,6 +19,7 @@ function Router() {
       <Route path={"/"}><DashboardLayout><Home /></DashboardLayout></Route>
       <Route path={"/faltas"}><DashboardLayout><AbsencePage /></DashboardLayout></Route>
       <Route path={"/tarefas"}><DashboardLayout><TasksPage /></DashboardLayout></Route>
+      <Route path={"/calendario"}><DashboardLayout><CalendarPage /></DashboardLayout></Route>
       <Route path={"/professores"}><DashboardLayout><TeacherManagement /></DashboardLayout></Route>
       <Route path={"/acessos"}><DashboardLayout><AccessPage /></DashboardLayout></Route>
       <Route path={"/404"} component={NotFound} />

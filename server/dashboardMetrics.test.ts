@@ -1,9 +1,15 @@
 import { describe, expect, it } from "vitest";
-import { calculateAbsencePercentage, calculateMetricDeltas, calculateTaskStats, calculateTopAbsenceRanking, groupPendingTeachers, scheduleHoursForMonth } from "./dashboardMetrics";
+import { calculateAbsencePercentage, calculateMetricDeltas, calculateTaskStats, calculateTopAbsenceRanking, groupPendingTeachers, scheduleHoursForMonth, scheduleHoursForYear } from "./dashboardMetrics";
 
 describe("métricas do dashboard", () => {
   it("soma a carga prevista pelas ocorrências do dia da semana no mês", () => {
     expect(scheduleHoursForMonth([{ weekday: "segunda", classHours: "2.00" }], 2026, 7, 31)).toBe(10);
+  });
+
+  it("agrega a carga semanal em todos os meses do ano", () => {
+    const schedules = [{ weekday: "segunda", classHours: "2.00" }, { weekday: "sexta", classHours: "1.00" }];
+    const monthlyTotal = Array.from({ length: 12 }, (_, monthIndex) => scheduleHoursForMonth(schedules, 2026, monthIndex, new Date(2026, monthIndex + 1, 0).getDate())).reduce((total, value) => total + value, 0);
+    expect(scheduleHoursForYear(schedules, 2026)).toBe(monthlyTotal);
   });
 
   it("calcula o percentual de carga sem professor sem dividir por zero", () => {

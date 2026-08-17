@@ -37,6 +37,11 @@ enum TaskCategory {
   evento
 }
 
+enum SchoolCalendarItemType {
+  holiday
+  event
+}
+
 model User {
   id             Int             @id @default(autoincrement())
   openId         String          @unique @db.VarChar(64)
@@ -51,6 +56,7 @@ model User {
   segment        Segment?        @relation("UserSegment", fields: [segmentId], references: [id])
   createdAbsences AbsenceRecord[] @relation("AbsenceCreatedBy")
   createdTasks   TaskRecord[]    @relation("TaskCreatedBy")
+  createdCalendarItems SchoolCalendarItem[] @relation("CalendarItemCreatedBy")
 
   @@index([segmentId])
   @@map("users")
@@ -62,6 +68,7 @@ model Segment {
   createdAt DateTime  @default(now())
   teachers  Teacher[]
   users     User[]    @relation("UserSegment")
+  calendarItems SchoolCalendarItem[]
 
   @@map("segments")
 }
@@ -138,4 +145,22 @@ model TaskRecord {
   @@unique([teacherId, taskDate, category], map: "task_teacher_date_category_unique")
   @@index([taskDate], map: "task_date_idx")
   @@map("taskRecords")
+}
+
+model SchoolCalendarItem {
+  id              Int                    @id @default(autoincrement())
+  title           String                 @db.VarChar(160)
+  eventDate       DateTime               @db.Date
+  type            SchoolCalendarItemType
+  description     String?                @db.VarChar(600)
+  segmentId       Int?
+  createdByUserId Int
+  createdAt       DateTime               @default(now())
+  updatedAt       DateTime               @updatedAt
+  segment         Segment?               @relation(fields: [segmentId], references: [id])
+  createdBy       User                   @relation("CalendarItemCreatedBy", fields: [createdByUserId], references: [id])
+
+  @@index([eventDate])
+  @@index([segmentId])
+  @@map("schoolCalendarItems")
 }

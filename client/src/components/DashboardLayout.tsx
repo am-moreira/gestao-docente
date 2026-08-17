@@ -4,7 +4,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarInset, SidebarMenu, SidebarMenuButton, SidebarMenuItem, SidebarProvider, SidebarTrigger, useSidebar } from "@/components/ui/sidebar";
 import { startLogin } from "@/const";
 import { useIsMobile } from "@/hooks/useMobile";
-import { BarChart3, BookOpenCheck, CalendarClock, ChevronRight, LayoutDashboard, LogOut, PanelLeft, Settings2, ShieldCheck, UsersRound } from "lucide-react";
+import { BarChart3, BookOpenCheck, CalendarClock, CalendarDays, ChevronRight, LayoutDashboard, LogOut, PanelLeft, Settings2, ShieldCheck, UsersRound } from "lucide-react";
 import { CSSProperties, useEffect, useRef, useState } from "react";
 import { useLocation } from "wouter";
 import { DashboardLayoutSkeleton } from "./DashboardLayoutSkeleton";
@@ -14,6 +14,7 @@ const menuItems = [
   { icon: LayoutDashboard, label: "Visão geral", path: "/" },
   { icon: CalendarClock, label: "Faltas", path: "/faltas" },
   { icon: BookOpenCheck, label: "Tarefas", path: "/tarefas" },
+  { icon: CalendarDays, label: "Calendário", path: "/calendario" },
   { icon: UsersRound, label: "Professores", path: "/professores", admin: true },
   { icon: ShieldCheck, label: "Acessos", path: "/acessos", admin: true },
 ];
